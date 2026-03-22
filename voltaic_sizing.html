@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voltaic Systems — Solar Sizing Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --orange:#e84f1c;--orange2:#ff6633;--orange-light:#fff2ee;--orange-border:#ffd5c4;
+  --bg:#f7f8fa;--white:#ffffff;--text:#1a1f2e;--muted:#6b7280;--muted2:#9ca3af;
+  --border:#e5e7eb;--border2:#d1d5db;--green:#15803d;--green-bg:#f0fdf4;--green-brd:#bbf7d0;
+  --red:#dc2626;--red-bg:#fef2f2;--red-brd:#fecaca;
+  --sans:'DM Sans',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.5;min-height:100vh}
+
+.root{max-width:980px;margin:0 auto;padding:36px 20px 80px}
+
+/* HEADER */
+.hdr{text-align:center;margin-bottom:40px}
+.logo{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:12px}
+.logo img{height:60px;width:auto}
+.hdr-rule{width:56px;height:2px;background:var(--orange);margin:0 auto 14px}
+.hdr-title{font-size:24px;font-weight:600;color:var(--text);margin-bottom:6px}
+.hdr-sub{font-size:15px;color:var(--muted)}
+
+/* MAIN LAYOUT */
+.layout{display:grid;grid-template-columns:300px 1fr;gap:28px;align-items:start}
+
+/* INPUT PANEL */
+.inputs{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:24px}
+.section-label{font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--orange);font-weight:600;margin-bottom:16px}
+.form-group{margin-bottom:16px}
+label{display:block;font-size:13px;font-weight:500;color:var(--text);margin-bottom:6px}
+label .hint{font-weight:400;color:var(--muted);font-size:12px}
+select,input[type=number]{
+  width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:8px;
+  background:var(--white);color:var(--text);font-family:var(--sans);font-size:14px;
+  outline:none;appearance:none;-webkit-appearance:none;transition:border-color 0.15s;
+}
+select:focus,input[type=number]:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(232,79,28,0.1)}
+select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;cursor:pointer;
+}
+optgroup{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em}
+option{color:var(--text);font-size:14px}
+.divider{height:1px;background:var(--border);margin:18px 0}
+.range-row{display:flex;align-items:center;gap:10px}
+.range-row input[type=range]{flex:1;accent-color:var(--orange);height:2px;cursor:pointer}
+.range-val{font-size:13px;font-weight:600;color:var(--orange);min-width:52px;text-align:right;font-family:monospace}
+.tog-row{display:flex;gap:6px}
+.tog{flex:1;padding:7px 8px;font-size:12px;font-weight:500;border:1px solid var(--border2);border-radius:6px;background:transparent;color:var(--muted);cursor:pointer;transition:all 0.15s;text-align:center}
+.tog:hover{border-color:var(--orange);color:var(--orange)}
+.tog.on{background:var(--orange);color:#fff;border-color:var(--orange);font-weight:600}
+
+/* RESULTS */
+.results{display:flex;flex-direction:column;gap:18px}
+
+/* PLACEHOLDER */
+.placeholder{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:56px 24px;text-align:center;color:var(--muted2)}
+.placeholder-sun{font-size:40px;margin-bottom:10px;opacity:0.35}
+.placeholder-text{font-size:14px}
+
+/* LOCATION STRIP */
+.loc-strip{background:var(--orange-light);border:1px solid var(--orange-border);border-radius:12px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.loc-name{font-size:15px;font-weight:600;color:var(--orange)}
+.loc-stats{display:flex;gap:20px}
+.loc-stat{text-align:center}
+.ls-val{font-size:18px;font-weight:600;color:var(--text);font-family:monospace}
+.ls-lbl{font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-top:1px}
+
+/* RECOMMENDATION BLOCK */
+.rec-block{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.rec-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:6px;text-decoration:none;color:inherit;transition:border-color 0.15s,box-shadow 0.15s}
+.rec-card:hover{border-color:var(--orange);box-shadow:0 2px 12px rgba(232,79,28,0.1)}
+.rec-type{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);font-weight:600}
+.rec-name{font-size:20px;font-weight:700;color:var(--orange);font-family:monospace}
+.rec-spec{font-size:12px;color:var(--muted)}
+.rec-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;margin-top:2px;align-self:flex-start}
+.badge-ok{background:var(--green-bg);color:var(--green);border:1px solid var(--green-brd)}
+.badge-warn{background:#fffbeb;color:#92400e;border:1px solid #fde68a}
+.badge-bad{background:var(--red-bg);color:var(--red);border:1px solid var(--red-brd)}
+.rec-link-hint{font-size:11px;color:var(--orange);margin-top:auto}
+
+/* TABLES */
+.table-block{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.table-title{font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);font-weight:600;padding:11px 16px;border-bottom:1px solid var(--border);background:var(--bg)}
+table{width:100%;border-collapse:collapse}
+th{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;padding:8px 14px;text-align:left;border-bottom:1px solid var(--border)}
+td{font-size:13px;color:var(--muted);padding:8px 14px;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+td.n{color:var(--text);font-weight:600}
+td.g{color:var(--green);font-weight:600}
+td.w{color:#92400e;font-weight:600}
+td.b{color:var(--red);font-weight:600}
+tr.hl{background:var(--orange-light)}
+tr.hl td.n{color:var(--orange)}
+.ratio-bar-bg{height:4px;background:var(--border);border-radius:2px;margin-top:4px;overflow:hidden;width:100%}
+.ratio-bar{height:4px;border-radius:2px;transition:width 0.5s}
+
+/* CTA */
+.cta-block{background:var(--orange);border-radius:12px;padding:22px 24px;text-align:center}
+.cta-title{font-size:18px;font-weight:700;color:#fff;margin-bottom:6px}
+.cta-sub{font-size:13px;color:rgba(255,255,255,0.8);margin-bottom:16px}
+.cta-btn{display:inline-block;background:#fff;color:var(--orange);font-size:14px;font-weight:700;padding:11px 28px;border-radius:8px;text-decoration:none;transition:opacity 0.15s}
+.cta-btn:hover{opacity:0.9}
+
+/* FOOTNOTES */
+.footnotes{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:18px}
+.fn-title{font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);font-weight:600;margin-bottom:10px}
+.fn-item{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:5px;display:flex;gap:8px}
+.fn-item:last-child{margin-bottom:0}
+.fn-num{color:var(--orange);font-weight:700;flex-shrink:0;min-width:14px}
+</style>
+</head>
+<body>
+<div class="root">
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="logo">
+    <img src="Voltaic-Logo-Hollow.png" alt="Voltaic Systems">
+  </div>
+  <div class="hdr-rule"></div>
+  <div class="hdr-title">Off-Grid Solar System Sizing Tool</div>
+  <div class="hdr-sub">Recommends solar panels and batteries based on device power consumption and location.</div>
+</div>
+
+<div class="layout">
+
+  <!-- INPUTS -->
+  <div class="inputs">
+    <div class="section-label">Your setup</div>
+
+    <div class="form-group">
+      <label>Closest location</label>
+      <select id="sel-loc" onchange="calc()">
+        <option value="">Select a location...</option>
+        <optgroup label="North America">
+          <option value="denver">Denver, CO</option>
+          <option value="miami">Miami, FL</option>
+          <option value="midatl">Mid-Atlantic (New York, NY)</option>
+          <option value="chicago">Chicago, IL</option>
+          <option value="lubbock">Lubbock, TX</option>
+          <option value="la">Los Angeles, CA</option>
+          <option value="sacramento">Sacramento, CA</option>
+          <option value="seattle">Seattle, WA</option>
+        </optgroup>
+        <optgroup label="Europe">
+          <option value="geneva">Geneva, Switzerland</option>
+          <option value="london">London, UK</option>
+          <option value="madrid">Madrid, Spain</option>
+          <option value="munich">Munich, Germany</option>
+          <option value="rome">Rome, Italy</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Average power consumption <span class="hint">watts</span></label>
+      <input type="number" id="inp-load" min="0.1" max="5000" step="0.5" value="10" oninput="calc()">
+    </div>
+
+    <div class="form-group">
+      <label>Requires PoE</label>
+      <div class="tog-row">
+        <button class="tog" id="tog-poe-y" onclick="setPoe(true)">Yes</button>
+        <button class="tog on" id="tog-poe-n" onclick="setPoe(false)">No</button>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="form-group">
+      <label>Days of battery autonomy <span class="hint">without sun</span></label>
+      <div class="range-row">
+        <input type="range" id="sl-days" min="1" max="14" step="1" value="4"
+          oninput="document.getElementById('v-days').textContent=this.value+' days';calc()">
+        <span class="range-val" id="v-days">4 days</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results" id="results">
+    <div class="placeholder">
+      <div class="placeholder-sun">&#9728;</div>
+      <div class="placeholder-text">Select a location to get started</div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+var poe=false;
+
+var LOCS={
+  denver:  {name:'Denver, CO',           dec:3.8, lat:39.7, tilt:50, tmp:0,  note:'south facing, angled at 50°'},
+  miami:   {name:'Miami, FL',            dec:5.1, lat:25.8, tilt:30, tmp:24, note:'south facing, angled at 30°'},
+  midatl:  {name:'Mid-Atlantic (NY, NY)',dec:2.7, lat:40.7, tilt:55, tmp:4,  note:'south facing, angled at 55°'},
+  chicago: {name:'Chicago, IL',          dec:2.5, lat:41.9, tilt:55, tmp:0,  note:'south facing, angled at 55°'},
+  lubbock: {name:'Lubbock, TX',          dec:4.8, lat:33.6, tilt:45, tmp:7,  note:'south facing, angled at 45°'},
+  la:      {name:'Los Angeles, CA',      dec:4.3, lat:34.1, tilt:45, tmp:14, note:'south facing, angled at 45°'},
+  sacramento:{name:'Sacramento, CA',     dec:3.1, lat:38.6, tilt:50, tmp:9,  note:'south facing, angled at 50°'},
+  seattle: {name:'Seattle, WA',          dec:1.5, lat:47.6, tilt:60, tmp:7,  note:'south facing, angled at 60°'},
+  geneva:  {name:'Geneva, Switzerland',  dec:1.4, lat:46.2, tilt:60, tmp:1,  note:'south facing, angled at 60°'},
+  london:  {name:'London, UK',           dec:1.08,lat:51.5, tilt:60, tmp:7,  note:'south facing, angled at 60°'},
+  madrid:  {name:'Madrid, Spain',        dec:3.4, lat:40.4, tilt:50, tmp:7,  note:'south facing, angled at 50°'},
+  munich:  {name:'Munich, Germany',      dec:1.2, lat:48.1, tilt:60, tmp:1,  note:'south facing, angled at 60°'},
+  rome:    {name:'Rome, Italy',          dec:2.8, lat:41.9, tilt:50, tmp:9,  note:'south facing, angled at 50°'}
+};
+
+var PANELS=[
+  {w:2,   sku:'P103', label:'2W Panel',   url:'https://voltaicsystems.com/P103/'},
+  {w:6,   sku:'P106', label:'6W Panel',   url:'https://voltaicsystems.com/P106/'},
+  {w:9,   sku:'P110', label:'9W Panel',   url:'https://voltaicsystems.com/P110/'},
+  {w:17,  sku:'P113', label:'17W Panel',  url:'https://voltaicsystems.com/P113/'},
+  {w:25,  sku:'P152', label:'25W Panel',  url:'https://voltaicsystems.com/P152/'},
+  {w:50,  sku:'P150', label:'50W Panel',  url:'https://voltaicsystems.com/P150/'},
+  {w:100, sku:'P151', label:'100W Panel', url:'https://voltaicsystems.com/P151/'},
+  {w:200, sku:'P151X2',label:'200W Panel (2×100W)', url:'https://voltaicsystems.com/200-watt-core/'}
+];
+
+var BATTS=[
+  {name:'V25', wh:24,  url:'https://voltaicsystems.com/v25/',         spec:'24Wh · Li-ion · USB-A/C · 6V solar in'},
+  {name:'V50', wh:48,  url:'https://voltaicsystems.com/v50/',         spec:'48Wh · Li-ion · USB-A/C · 6V solar in'},
+  {name:'V70', wh:71,  url:'https://voltaicsystems.com/V70-iot/',     spec:'71Wh · Li-ion · 12V out · 18V solar in'},
+  {name:'V88', wh:88,  url:'https://voltaicsystems.com/V88/',         spec:'88Wh · Li-ion · 12V/USB · 18V solar in'},
+  {name:'V102',wh:230, url:'https://voltaicsystems.com/V102/',        spec:'230Wh · LFP · 12V out · MPPT · IP67'},
+  {name:'V107',wh:720, url:'https://voltaicsystems.com/core-solar-systems/',spec:'720Wh · LFP · 12V out · MPPT · pole mount'}
+];
+
+var maxPanelForBatt={V25:14,V50:14,V70:22,V88:22,V102:150,V107:200};
+
+function bestPanel(neededW){
+  for(var i=0;i<PANELS.length;i++){if(PANELS[i].w>=neededW)return i;}
+  return PANELS.length-1;
+}
+function bestBatt(neededWh,pIdx){
+  var pw=PANELS[pIdx].w;
+  for(var i=0;i<BATTS.length;i++){
+    var bname=BATTS[i].name;
+    if(BATTS[i].wh>=neededWh && maxPanelForBatt[bname]>=pw)return i;
+  }
+  return BATTS.length-1;
+}
+function ratioClass(r){return r>=2?'g':(r>=1.5?'w':'b');}
+function daysClass(d,req){return d>=req?'g':(d>=2?'w':'b');}
+function fmtWh(w){return w<1000?w.toFixed(0)+' Wh':(w/1000).toFixed(1)+' kWh';}
+
+function setPoe(v){
+  poe=v;
+  document.getElementById('tog-poe-y').className='tog'+(v?' on':'');
+  document.getElementById('tog-poe-n').className='tog'+(!v?' on':'');
+  calc();
+}
+
+function calc(){
+  var locKey=document.getElementById('sel-loc').value;
+  var loadW=parseFloat(document.getElementById('inp-load').value)||10;
+  var days=parseInt(document.getElementById('sl-days').value)||4;
+  var area=document.getElementById('results');
+
+  if(!locKey){
+    area.innerHTML='<div class="placeholder"><div class="placeholder-sun">&#9728;</div><div class="placeholder-text">Select a location to get started</div></div>';
+    return;
+  }
+
+  var loc=LOCS[locKey];
+  var dailyWh=loadW*24;
+  var psh=loc.dec;
+  var cellTemp=loc.tmp+20;
+  var derate=1+(-0.004*(cellTemp-25));
+  var sysEff=0.85;
+  var eff=sysEff*derate;
+  var availPerW=psh*eff;
+  var rawNeeded=dailyWh/availPerW;
+  var safeNeeded=rawNeeded*1.5;
+  var battNeeded=dailyWh*days/0.85;
+
+  var pIdx=bestPanel(safeNeeded);
+  var bIdx=bestBatt(battNeeded,pIdx);
+  var panel=PANELS[pIdx];
+  var batt=BATTS[bIdx];
+  var ratio=(panel.w*availPerW)/dailyWh;
+  var battDays=batt.wh*0.85/dailyWh;
+  var poeNote=poe?'<br><small style="color:var(--orange)">PoE requires 12V+ output — ensure V70/V88/V102/V107 battery selection.</small>':'';
+
+  var html='';
+
+  // Location strip
+  html+='<div class="loc-strip">';
+  html+='<div class="loc-name">'+loc.name+'</div>';
+  html+='<div class="loc-stats">';
+  html+='<div class="loc-stat"><div class="ls-val">'+psh+'</div><div class="ls-lbl">Dec sun hours/day<sup>5</sup></div></div>';
+  html+='<div class="loc-stat"><div class="ls-val">'+loc.tilt+'°</div><div class="ls-lbl">Recommended tilt<sup>1</sup></div></div>';
+  html+='<div class="loc-stat"><div class="ls-val">'+fmtWh(dailyWh)+'</div><div class="ls-lbl">Consumed/day<sup>4</sup></div></div>';
+  html+='</div></div>';
+
+  // Recommendations
+  html+='<div class="rec-block">';
+  html+='<a class="rec-card" href="'+panel.url+'" target="_blank">';
+  html+='<div class="rec-type">Recommended panel</div>';
+  html+='<div class="rec-name">'+panel.label+'</div>';
+  html+='<div class="rec-spec">'+panel.sku+' &mdash; '+panel.w+'W rated</div>';
+  html+='<div class="rec-badge '+(ratio>=1.5?'badge-ok':'badge-warn')+'">Power ratio: '+ratio.toFixed(2)+'<sup>2, 6</sup></div>';
+  html+='<div class="rec-link-hint">View on voltaicsystems.com &rarr;</div>';
+  html+='</a>';
+  html+='<a class="rec-card" href="'+batt.url+'" target="_blank">';
+  html+='<div class="rec-type">Recommended battery</div>';
+  html+='<div class="rec-name">'+batt.name+'</div>';
+  html+='<div class="rec-spec">'+batt.spec+'</div>';
+  html+='<div class="rec-badge '+(battDays>=days?'badge-ok':'badge-warn')+'">'+battDays.toFixed(1)+' days runtime<sup>3, 7</sup></div>';
+  html+='<div class="rec-link-hint">View on voltaicsystems.com &rarr;</div>';
+  html+='</a></div>';
+
+  // Panel table
+  html+='<div class="table-block">';
+  html+='<div class="table-title">Solar panel performance in December &mdash; '+loc.name+'</div>';
+  html+='<table><thead><tr><th>Panel</th><th>Equivalent sun hours<sup>5</sup></th><th>Power ratio<sup>6</sup></th><th></th></tr></thead><tbody>';
+  for(var i=0;i<PANELS.length;i++){
+    var r=(PANELS[i].w*availPerW)/dailyWh;
+    var rC=ratioClass(r);
+    var hl=i===pIdx?' class="hl"':'';
+    var barW=Math.min(100,r/3*100);
+    var barCol=r>=2?'#15803d':(r>=1.5?'#d97706':'#dc2626');
+    html+='<tr'+hl+'><td class="n"><a href="'+PANELS[i].url+'" target="_blank" style="color:inherit;text-decoration:none">'+PANELS[i].w+'W ('+PANELS[i].sku+')</a></td>';
+    html+='<td>'+psh+' hrs</td>';
+    html+='<td class="'+rC+'" style="min-width:90px">'+r.toFixed(2);
+    html+='<div class="ratio-bar-bg"><div class="ratio-bar" style="width:'+barW+'%;background:'+barCol+'"></div></div></td>';
+    html+='<td class="'+rC+'">'+(r>=2?'Excellent':(r>=1.5?'Adequate':(r>=1?'Marginal':'Insufficient')))+'</td></tr>';
+  }
+  html+='</tbody></table>';
+  html+='<div style="font-size:11px;color:var(--muted);padding:8px 14px;border-top:1px solid var(--border)">Power Available = Panel Watts &times; Equivalent Sun Hours &times; System Efficiency &nbsp;&nbsp; &middot; &nbsp;&nbsp; Power Consumed = '+loadW+'W &times; 24 hours = '+fmtWh(dailyWh)+' per day&nbsp;&nbsp;A power ratio of at least 1.5 is recommended.<sup>2</sup></div></div>';
+
+  // Battery table
+  html+='<div class="table-block">';
+  html+='<div class="table-title">Battery capacity &mdash; days runtime<sup>7</sup> at '+loadW+'W</div>';
+  html+='<table><thead><tr><th>Battery</th><th>Capacity</th><th>Chemistry</th><th>Days runtime<sup>7</sup></th></tr></thead><tbody>';
+  for(var j=0;j<BATTS.length;j++){
+    var bd=BATTS[j].wh*0.85/dailyWh;
+    var dc=daysClass(bd,days);
+    var hlb=j===bIdx?' class="hl"':'';
+    html+='<tr'+hlb+'><td class="n"><a href="'+BATTS[j].url+'" target="_blank" style="color:inherit;text-decoration:none">'+BATTS[j].name+'</a></td>';
+    html+='<td>'+BATTS[j].wh+' Wh</td>';
+    html+='<td>'+BATTS[j].spec.split('·')[1].trim()+'</td>';
+    html+='<td class="'+dc+'">'+bd.toFixed(2)+'</td></tr>';
+  }
+  html+='</tbody></table>';
+  html+='<div style="font-size:11px;color:var(--muted);padding:8px 14px;border-top:1px solid var(--border)">Batteries should be sized to run the device for at least '+days+' days with no sun in most situations.<sup>3</sup>'+poeNote+'</div></div>';
+
+  // CTA
+  html+='<div class="cta-block">';
+  html+='<div class="cta-title">Need help sizing your system?</div>';
+  html+='<div class="cta-sub">Our engineers can spec the right solution for your device, location, and reliability requirements.</div>';
+  html+='<a class="cta-btn" href="https://voltaicsystems.com/core-solar-systems/" target="_blank">Talk to a Sales Engineer</a>';
+  html+='</div>';
+
+  // Footnotes
+  html+='<div class="footnotes"><div class="fn-title">Footnotes</div>';
+  var fns=[
+    'We recommend angling the panel to produce the most power in the worst month of the year, typically December in the northern hemisphere.',
+    'This accounts for system losses as well as extended days of below average sunlight. Increasing panel size beyond a 1.5 power ratio decreases risk of an outage. Shade or other obstructions may require larger panels.',
+    'Most places experience a few long stretches of below average sunlight or temperatures below freezing. In these situations, the battery may receive little or no charge.',
+    loadW.toFixed(1)+' watt(s) x 24 hours = '+fmtWh(dailyWh)+' per day.',
+    'To make calculations easier, we equate the sun\'s path across the sky to time spent directly in front of the solar panel, or equivalent direct hours.',
+    'Power Ratio = Power Generated / Power Consumed.',
+    'Number of days the system could run on only a battery.'
+  ];
+  for(var k=0;k<fns.length;k++){
+    html+='<div class="fn-item"><span class="fn-num">'+(k+1)+'.</span><span>'+fns[k]+'</span></div>';
+  }
+  html+='</div>';
+
+  area.innerHTML=html;
+}
+</script>
+</body>
+</html>
