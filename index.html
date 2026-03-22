@@ -69,6 +69,13 @@ option{color:var(--text);font-size:14px}
 .range-row input[type=range]{flex:1;accent-color:var(--orange);height:2px;cursor:pointer}
 .range-val{font-size:13px;font-weight:600;color:var(--orange);min-width:52px;text-align:right;font-family:monospace}
 .tog-row{display:flex;gap:6px}
+/* POWER INPUT */
+.power-input-row{display:flex;gap:6px}
+.power-input-row input{flex:1;min-width:0}
+.power-input-row select{width:68px;flex-shrink:0;padding-right:24px}
+.power-presets{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.preset-btn{font-size:11px;padding:4px 9px;border:1px solid var(--border2);border-radius:5px;background:transparent;color:var(--muted);cursor:pointer;font-family:var(--sans);font-weight:500;transition:all 0.15s}
+.preset-btn:hover{border-color:var(--orange);color:var(--orange);background:var(--orange-light)}
 .tog{flex:1;padding:7px 8px;font-size:12px;font-weight:500;border:1px solid var(--border2);border-radius:6px;background:transparent;color:var(--muted);cursor:pointer;transition:all 0.15s;text-align:center}
 .tog:hover{border-color:var(--orange);color:var(--orange)}
 .tog.on{background:var(--orange);color:#fff;border-color:var(--orange);font-weight:600}
@@ -201,8 +208,25 @@ tr.hl td.n{color:var(--orange)}
     </div>
 
     <div class="form-group">
-      <label>Average power consumption <span class="hint">watts</span></label>
-      <input type="number" id="inp-load" min="0.1" max="5000" step="0.5" value="10" oninput="calc()">
+      <label>Average power consumption</label>
+      <div class="power-input-row">
+        <input type="number" id="inp-load" min="0.001" max="999999" step="any" value="10" oninput="onLoadInput()">
+        <select id="sel-unit" onchange="onUnitChange()">
+          <option value="W" selected>W</option>
+          <option value="mW">mW</option>
+        </select>
+      </div>
+      <div class="range-row" style="margin-top:10px">
+        <input type="range" id="sl-load" min="0" max="100" step="0.1" value="52.6" oninput="onLoadSlider()">
+        <span class="range-val" id="v-load">10 W</span>
+      </div>
+      <div class="power-presets">
+        <button class="preset-btn" onclick="setLoad(0.05)">50 mW</button>
+        <button class="preset-btn" onclick="setLoad(0.5)">0.5 W</button>
+        <button class="preset-btn" onclick="setLoad(2)">2 W</button>
+        <button class="preset-btn" onclick="setLoad(10)">10 W</button>
+        <button class="preset-btn" onclick="setLoad(25)">25 W</button>
+      </div>
     </div>
 
     <div class="form-group">
@@ -239,6 +263,51 @@ tr.hl td.n{color:var(--orange)}
 
 <script>
 var poe=false;
+var loadUnit='W';
+var LOG_MIN=-2, LOG_MAX=Math.log10(5000); // log10(0.01W) to log10(5000W)
+
+function wattsToSlider(w){
+  return (Math.log10(Math.max(w,0.01))-LOG_MIN)/(LOG_MAX-LOG_MIN)*100;
+}
+function sliderToWatts(s){
+  return Math.pow(10, s/100*(LOG_MAX-LOG_MIN)+LOG_MIN);
+}
+function fmtLoadLabel(watts){
+  if(watts<1) return (watts*1000).toFixed(watts*1000<10?1:0)+' mW';
+  if(watts>=1000) return (watts/1000).toFixed(1)+' kW';
+  return (watts<10?watts.toFixed(2):watts.toFixed(1))+' W';
+}
+function getLoadWatts(){
+  var v=parseFloat(document.getElementById('inp-load').value)||0;
+  return loadUnit==='mW'?v/1000:v;
+}
+function syncFromWatts(watts){
+  var display=loadUnit==='mW'?watts*1000:watts;
+  var dec=loadUnit==='mW'?(display<10?2:1):(display<10?3:1);
+  document.getElementById('inp-load').value=parseFloat(display.toFixed(dec));
+  document.getElementById('sl-load').value=wattsToSlider(watts);
+  document.getElementById('v-load').textContent=fmtLoadLabel(watts);
+}
+function onLoadInput(){
+  var watts=getLoadWatts();
+  document.getElementById('sl-load').value=wattsToSlider(watts);
+  document.getElementById('v-load').textContent=fmtLoadLabel(watts);
+  calc();
+}
+function onLoadSlider(){
+  var watts=sliderToWatts(parseFloat(document.getElementById('sl-load').value));
+  syncFromWatts(watts);
+  calc();
+}
+function onUnitChange(){
+  var watts=getLoadWatts();
+  loadUnit=document.getElementById('sel-unit').value;
+  syncFromWatts(watts);
+}
+function setLoad(watts){
+  syncFromWatts(watts);
+  calc();
+}
 
 var LOCS={
   denver:  {name:'Denver, CO',           dec:3.8, lat:39.7, tilt:50, tmp:0,  note:'south facing, angled at 50°'},
@@ -303,7 +372,7 @@ function setPoe(v){
 
 function calc(){
   var locKey=document.getElementById('sel-loc').value;
-  var loadW=parseFloat(document.getElementById('inp-load').value)||10;
+  var loadW=getLoadWatts()||0.01;
   var days=parseInt(document.getElementById('sl-days').value)||4;
   var area=document.getElementById('results');
 
