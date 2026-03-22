@@ -210,7 +210,7 @@ tr.hl td.n{color:var(--orange)}
     <div class="form-group">
       <label>Average power consumption</label>
       <div class="power-input-row">
-        <input type="number" id="inp-load" min="0.001" max="999999" step="any" value="10" oninput="onLoadInput()">
+        <input type="number" id="inp-load" min="0.001" max="15000" step="any" value="10" oninput="onLoadInput()">
         <select id="sel-unit" onchange="onUnitChange()">
           <option value="W" selected>W</option>
           <option value="mW">mW</option>
@@ -224,8 +224,8 @@ tr.hl td.n{color:var(--orange)}
         <button class="preset-btn" onclick="setLoad(0.05)">50 mW</button>
         <button class="preset-btn" onclick="setLoad(0.5)">0.5 W</button>
         <button class="preset-btn" onclick="setLoad(2)">2 W</button>
-        <button class="preset-btn" onclick="setLoad(10)">10 W</button>
-        <button class="preset-btn" onclick="setLoad(25)">25 W</button>
+        <button class="preset-btn" onclick="setLoad(5)">5 W</button>
+        <button class="preset-btn" onclick="setLoad(15)">15 W</button>
       </div>
     </div>
 
@@ -264,7 +264,7 @@ tr.hl td.n{color:var(--orange)}
 <script>
 var poe=false;
 var loadUnit='W';
-var LOG_MIN=-2, LOG_MAX=Math.log10(5000); // log10(0.01W) to log10(5000W)
+var LOG_MIN=-2, LOG_MAX=Math.log10(15); // log10(0.01W) to log10(15W)
 
 function wattsToSlider(w){
   return (Math.log10(Math.max(w,0.01))-LOG_MIN)/(LOG_MAX-LOG_MIN)*100;
