@@ -4,17 +4,34 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Voltaic Systems — Solar Sizing Tool</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Karla:wght@400;500;600;700&family=Montserrat:wght@400;600;700&family=Open+Sans:wght@700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --orange:#e84f1c;--orange2:#ff6633;--orange-light:#fff2ee;--orange-border:#ffd5c4;
-  --bg:#f7f8fa;--white:#ffffff;--text:#1a1f2e;--muted:#6b7280;--muted2:#9ca3af;
+  --orange:#ff3300;--orange2:#ff6633;--orange-light:#fff2ee;--orange-border:#ffd5c4;
+  --bg:#f7f8fa;--white:#ffffff;--text:#333333;--muted:#757575;--muted2:#9ca3af;
   --border:#e5e7eb;--border2:#d1d5db;--green:#15803d;--green-bg:#f0fdf4;--green-brd:#bbf7d0;
   --red:#dc2626;--red-bg:#fef2f2;--red-brd:#fecaca;
-  --sans:'DM Sans',sans-serif;
+  --sans:'Karla',Helvetica,Arial,sans-serif;
+  --heading:'Montserrat',Helvetica,Arial,sans-serif;
 }
 body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.5;min-height:100vh}
+
+/* SITE NAV */
+.site-nav{background:#fff;border-bottom:1px solid #e5e5e5;position:sticky;top:0;z-index:100}
+.site-nav-inner{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;align-items:center;height:64px;gap:0}
+.site-nav-logo{display:flex;align-items:center;text-decoration:none;margin-right:32px;flex-shrink:0}
+.site-nav-logo img{height:42px;width:auto}
+.site-nav-links{display:flex;align-items:center;gap:0;flex:1}
+.site-nav-links a{font-family:var(--sans);font-size:14px;font-weight:500;color:#333;text-decoration:none;padding:0 14px;height:64px;display:flex;align-items:center;border-bottom:3px solid transparent;transition:color 0.15s,border-color 0.15s;white-space:nowrap}
+.site-nav-links a:hover{color:var(--orange);border-bottom-color:var(--orange)}
+.site-nav-right{display:flex;align-items:center;gap:16px;margin-left:auto}
+.site-nav-phone{font-size:13px;color:#4d4d4d;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.site-nav-phone svg{opacity:0.6}
+.nav-cta{background:var(--orange);color:#fff;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:700;padding:9px 18px;border-radius:4px;text-decoration:none;white-space:nowrap;transition:opacity 0.15s}
+.nav-cta:hover{opacity:0.88}
+.nav-icon{color:#4d4d4d;display:flex;align-items:center;font-size:13px;gap:4px;text-decoration:none}
+.nav-icon:hover{color:var(--orange)}
 
 .root{max-width:980px;margin:0 auto;padding:36px 20px 80px}
 
@@ -23,7 +40,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:
 .logo{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:12px}
 .logo img{height:60px;width:auto}
 .hdr-rule{width:56px;height:2px;background:var(--orange);margin:0 auto 14px}
-.hdr-title{font-size:24px;font-weight:600;color:var(--text);margin-bottom:6px}
+.hdr-title{font-size:24px;font-weight:700;color:var(--text);margin-bottom:6px;font-family:var(--heading)}
 .hdr-sub{font-size:15px;color:var(--muted)}
 
 /* MAIN LAYOUT */
@@ -117,6 +134,30 @@ tr.hl td.n{color:var(--orange)}
 </style>
 </head>
 <body>
+
+<!-- SITE NAV -->
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a class="site-nav-logo" href="https://voltaicsystems.com" target="_blank">
+      <img src="Voltaic-Logo-Hollow.png" alt="Voltaic Systems">
+    </a>
+    <div class="site-nav-links">
+      <a href="https://voltaicsystems.com/solar-panels/" target="_blank">Products</a>
+      <a href="https://voltaicsystems.com/applications/" target="_blank">Applications</a>
+      <a href="https://voltaicsystems.com/resources/" target="_blank">Resources</a>
+      <a href="https://voltaicsystems.com/about-us/" target="_blank">About Us</a>
+      <a href="https://voltaicsystems.com/support/" target="_blank">Support</a>
+    </div>
+    <div class="site-nav-right">
+      <span class="site-nav-phone">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        +1-212-401-1192
+      </span>
+      <a class="nav-cta" href="https://voltaicsystems.com/contact/" target="_blank">Contact Us</a>
+    </div>
+  </div>
+</nav>
+
 <div class="root">
 
 <!-- HEADER -->
